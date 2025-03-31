@@ -1439,6 +1439,7 @@ Button {
  font.pixelSize: font_Size.text 
  Layout.preferredHeight: 60 
  onClicked: { coordinatesDialog.open() }
+ onPressAndHold: { coordinatesDialog2.open() }
  }
  } 
  
@@ -1682,7 +1683,106 @@ GridLayout{  // grid 2
 } // end of big column
      Dialog {
         id: coordinatesDialog
-        title: "Coordinates"
+        //title:  "Coordinates"
+        font.pixelSize: 35
+        width: 400
+        height: 400
+        modal: true
+        anchors.centerIn:  parent
+
+Column {
+    spacing: 20  // Space between the two boxes
+    width: parent.width
+    anchors.centerIn: parent
+   
+    // First Box: GPS
+    Rectangle {
+        width: parent.width //*0.5  // Make it responsive
+        implicitHeight: childrenRect.height + 20
+        color: "#D9CCE7"  // Lavender
+        radius: 10
+        border.color: "black"
+        border.width: 0.5
+        anchors.horizontalCenter: parent.horizontalCenter
+                
+        Column {
+            id: childrenRect
+            width: parent.width
+            spacing: 10
+            anchors.margins: 10
+            anchors.centerIn: parent
+
+            Label {
+                text: "GPS"
+                font.pixelSize: 20
+                font.bold: true
+                horizontalAlignment: Text.AlignHCenter
+                anchors.horizontalCenter: parent.horizontalCenter
+            }
+            Label {
+                text: if (positionSource.active && positionSource.positionInformation.latitudeValid && positionSource.positionInformation.longitudeValid) {justIG(positionSource.projectedPosition,  canvasEPSG)} else 
+ {"No GPS"}
+                font.pixelSize: 35
+                wrapMode: Text.Wrap
+                horizontalAlignment: Text.AlignHCenter
+                anchors.horizontalCenter: parent.horizontalCenter
+            }
+            Label {
+                text: if (positionSource.active && positionSource.positionInformation.latitudeValid && positionSource.positionInformation.longitudeValid) {justLL(positionSource.projectedPosition,  canvasEPSG)} else {""}
+                font.pixelSize: 30
+                wrapMode: Text.Wrap
+                horizontalAlignment: Text.AlignHCenter
+                anchors.horizontalCenter: parent.horizontalCenter
+            }            
+        }
+    }
+
+    // Second Box: Screen Center
+    Rectangle {
+        width: parent.width //* 0.98
+        implicitHeight: childrenRect2.height + 20
+        color: "#f0f0f0"
+        radius: 10
+        border.color: "black"
+        border.width: 0.5
+        anchors.horizontalCenter: parent.horizontalCenter
+
+        Column {
+            id: childrenRect2
+            width: parent.width
+            spacing: 10
+            anchors.margins: 10
+            anchors.centerIn: parent
+
+            Label {
+                text: "Screen Center"
+                font.pixelSize: 20
+                font.bold: true
+                horizontalAlignment: Text.AlignHCenter
+                anchors.horizontalCenter: parent.horizontalCenter
+            }
+            Label {
+                text: justIG(canvas.center, canvasEPSG)
+                font.pixelSize: 35
+                wrapMode: Text.Wrap
+                horizontalAlignment: Text.AlignHCenter
+                anchors.horizontalCenter: parent.horizontalCenter
+            }
+            Label {
+                text: justLL(canvas.center, canvasEPSG)
+                font.pixelSize: 30
+                wrapMode: Text.Wrap
+                horizontalAlignment: Text.AlignHCenter
+                anchors.horizontalCenter: parent.horizontalCenter
+            }            
+        }
+    }
+}
+
+    }
+     Dialog {
+        id: coordinatesDialog2
+        title: "Coordinates from search box (previous page)"
         font.pixelSize: 35
         width: 400
         height: 400
@@ -1715,7 +1815,6 @@ GridLayout{  // grid 2
             }            
         }
     }
-
 }
  
 
@@ -2020,6 +2119,18 @@ function degtoSeconds(decimal) {
  } 
  }
 
+function justIG(source,crs){ 
+var point = GeometryUtils.reprojectPoint(GeometryUtils.point(source.x, source.y),  CoordinateReferenceSystemUtils.fromDescription("EPSG:"+crs) , CoordinateReferenceSystemUtils.fromDescription("EPSG:29903"))
+ return getIGFromXY(point.x, point.y)
+ }
+
+function justLL(source,crs){ 
+var point = GeometryUtils.reprojectPoint(GeometryUtils.point(source.x, source.y),  CoordinateReferenceSystemUtils.fromDescription("EPSG:"+crs) , CoordinateReferenceSystemUtils.fromDescription("EPSG:4326"))
+return ( point.y.toFixed(decimalsd.text)+", "+ point.x.toFixed(decimalsd.text) )
+
+ }
+
+ 
  function formatPoint(point, crs) {
  if (!crs.isGeographic) {
  return parseFloat(point.x.toFixed(decimalsm.text)) + ", " + parseFloat(point.y.toFixed(decimalsm.text))
