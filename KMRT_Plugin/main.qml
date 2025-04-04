@@ -113,19 +113,14 @@ function triggerResultFromAction(result, actionId) {
       }
 
     } else if (actionId === 2) {
-      // Ensure an editable layer is selected
-      dashBoard.ensureEditableLayerSelected();
-     
-      // Check if the active layer is valid
-      if (!dashBoard.activeLayer) {
-        mainWindow.displayToast("No active layer selected");
+      // Check if  active point layer is valid
+        if (!dashBoard.ensureEditableLayerSelected() || 
+        dashBoard.activeLayer.geometryType() !== Qgis.GeometryType.Point) {
+        mainWindow.displayToast(qsTr("Select 'Points' layer and try again"));
+        dashBoard.open();
         return;
       }
-            // Check if the active layer is a point layer
-      if (dashBoard.activeLayer.geometryType() !== Qgis.GeometryType.Point) {
-        mainWindow.displayToast(qsTr("Active vector layer must be a point geometry"));
-        return;
-      }
+
        // Create the geometry 
       var reprojectedGeometry = GeometryUtils.createGeometryFromWkt(`POINT(${reprojectedPoint.x} ${reprojectedPoint.y})`)
        
@@ -257,7 +252,7 @@ Button {
         id: showCustomisation
         checked: false
         onCheckedChanged: {
-            customisation.visible = checked
+        customisation.visible = checked
         }
     } 
 }
@@ -1213,7 +1208,7 @@ onTextChanged: lonSecClampTimer.restart()
  var lonMin = parseFloat(lonMinutes.text) || 0
  var lonSec = parseFloat(lonSeconds.text) || 0
  
- // should I notify the wgs84Boxbox that this is a programmtic update?.
+ // should I notify the wgs84boxBox that this is a programmtic update?.
  wgs84Box.isProgrammaticUpdate = true
  // update the wgs84Box 
  if (latDeg < 0) { var latDecimal = latDeg - (latMin / 60) - (latSec / 3600) } 
@@ -1350,14 +1345,13 @@ Button {
  Layout.preferredHeight: 60 
 
  onClicked: {
- // Ensure an editable layer is selected
- dashBoard.ensureEditableLayerSelected();
-
- // Check if the active layer is a point layer
- if (dashBoard.activeLayer.geometryType() !== Qgis.GeometryType.Point) {
- mainWindow.displayToast(qsTr("Active vector layer must be a point geometry"));
- return;
- }
+       // Check if  active point layer is valid
+        if (!dashBoard.ensureEditableLayerSelected() || 
+        dashBoard.activeLayer.geometryType() !== Qgis.GeometryType.Point) {
+        mainWindow.displayToast(qsTr("Select 'Points' layer and try again"));
+        dashBoard.open();
+        return;
+      }
 
  // Parse coordinates & transform
  var parts = wgs84Box.text.split(',');
@@ -1438,8 +1432,13 @@ Button {
   Layout.fillWidth: true
  font.pixelSize: font_Size.text 
  Layout.preferredHeight: 60 
- onClicked: { coordinatesDialog.open() }
- onPressAndHold: { coordinatesDialog2.open() }
+ onClicked: { 
+    coordinatesDialog.open() 
+    }
+
+ onPressAndHold: {
+     coordinatesDialog2.open() 
+     }
  }
  } 
  
@@ -1685,7 +1684,7 @@ GridLayout{  // grid 2
         id: coordinatesDialog
         //title:  "Coordinates"
         font.pixelSize: 35
-        width: 400
+        width: 350
         height: 400
         modal: true
         anchors.centerIn:  parent
@@ -1697,6 +1696,8 @@ Column {
    
     // First Box: GPS
     Rectangle {
+        id: gpsBox
+        visible: gpsBoxvis
         width: parent.width //*0.5  // Make it responsive
         implicitHeight: childrenRect.height + 20
         color: "#D9CCE7"  // Lavender
@@ -1739,6 +1740,8 @@ Column {
 
     // Second Box: Screen Center
     Rectangle {
+        id: screenBox
+        visible: screenBoxvis
         width: parent.width //* 0.98
         implicitHeight: childrenRect2.height + 20
         color: "#f0f0f0"
@@ -1777,43 +1780,75 @@ Column {
             }            
         }
     }
+
+
 }
 
     }
      Dialog {
         id: coordinatesDialog2
-        title: "Coordinates from search box (previous page)"
         font.pixelSize: 35
         width: 400
-        height: 400
+        height: 350
         modal: true
         anchors.centerIn:  parent
 
+    // Third Box: box contents:
+    Rectangle {
+        id : boxBox
+        visible: boxBoxvis
+        width: parent.width //* 0.98
+        implicitHeight: childrenRect3.height + 20
+        color: "#f0fef0"
+        radius: 10
+        border.color: "black"
+        border.width: 0.5
+        anchors.horizontalCenter: parent.horizontalCenter
+
         Column {
-            spacing: 40
+            id: childrenRect3
+            width: parent.width
+            spacing: 10
+            anchors.margins: 10
             anchors.centerIn: parent
 
             Label {
-                text: igInputBox.text
-                font.pixelSize: 35
+                text: "Text box contents"
+                font.pixelSize: 20
                 font.bold: true
-            }               
-            Label {
-                text: ukInputBox.text
-                font.pixelSize: 35
-                font.bold: true
-            }            
-            Label {
-                text:wgs84Box.text 
-                font.pixelSize: 35
-                font.bold: true
+                horizontalAlignment: Text.AlignHCenter
+                anchors.horizontalCenter: parent.horizontalCenter
             }
             Label {
-                text:wgs84DMBox.text
+                text: igInputBox.text
                 font.pixelSize: 35
-                font.bold: true
-            }            
+                wrapMode: Text.Wrap
+                horizontalAlignment: Text.AlignHCenter
+                anchors.horizontalCenter: parent.horizontalCenter
+            }
+            Label {
+                text: wgs84Box.text
+                font.pixelSize: 30
+                wrapMode: Text.Wrap
+                horizontalAlignment: Text.AlignHCenter
+                anchors.horizontalCenter: parent.horizontalCenter
+            } 
+            Label {
+                text: wgs84DMBox.text
+                font.pixelSize: 30
+                wrapMode: Text.Wrap
+                horizontalAlignment: Text.AlignHCenter
+                anchors.horizontalCenter: parent.horizontalCenter
+            } 
+            Label {
+                text: wgs84DMSBox.text
+                font.pixelSize: 30
+                wrapMode: Text.Wrap
+                horizontalAlignment: Text.AlignHCenter
+                anchors.horizontalCenter: parent.horizontalCenter
+            }                     
         }
+    }
     }
 }
  
