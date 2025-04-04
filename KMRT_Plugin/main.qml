@@ -113,13 +113,21 @@ function triggerResultFromAction(result, actionId) {
       }
 
     } else if (actionId === 2) {
-      // Check if  active point layer is valid
-        if (!dashBoard.ensureEditableLayerSelected() || 
-        dashBoard.activeLayer.geometryType() !== Qgis.GeometryType.Point) {
-        mainWindow.displayToast(qsTr("Select 'Points' layer and try again"));
-        dashBoard.open();
+      // Ensure an editable layer is selected
+      dashBoard.ensureEditableLayerSelected();
+      // Check if the active layer is valid
+      if (!dashBoard.activeLayer) {
+      mainWindow.displayToast(qsTr("Select 'Points' layer and try again"));
+      dashBoard.open();
         return;
       }
+       // Check if the active layer is a point layer
+      if (dashBoard.activeLayer.geometryType() !== Qgis.GeometryType.Point) {
+      mainWindow.displayToast(qsTr("Select 'Points' layer and try again"));
+      dashBoard.open();
+        return;
+      }
+      
 
        // Create the geometry 
       var reprojectedGeometry = GeometryUtils.createGeometryFromWkt(`POINT(${reprojectedPoint.x} ${reprojectedPoint.y})`)
@@ -1345,11 +1353,18 @@ Button {
  Layout.preferredHeight: 60 
 
  onClicked: {
-       // Check if  active point layer is valid
-        if (!dashBoard.ensureEditableLayerSelected() || 
-        dashBoard.activeLayer.geometryType() !== Qgis.GeometryType.Point) {
-        mainWindow.displayToast(qsTr("Select 'Points' layer and try again"));
-        dashBoard.open();
+      // Ensure an editable layer is selected
+      dashBoard.ensureEditableLayerSelected();
+      // Check if the active layer is valid
+      if (!dashBoard.activeLayer) {
+      mainWindow.displayToast(qsTr("Select 'Points' layer and try again"));
+      dashBoard.open();
+        return;
+      }
+       // Check if the active layer is a point layer
+      if (dashBoard.activeLayer.geometryType() !== Qgis.GeometryType.Point) {
+      mainWindow.displayToast(qsTr("Select 'Points' layer and try again"));
+      dashBoard.open();
         return;
       }
 
