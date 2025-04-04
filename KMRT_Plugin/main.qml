@@ -113,22 +113,13 @@ function triggerResultFromAction(result, actionId) {
       }
 
     } else if (actionId === 2) {
-      // Ensure an editable layer is selected
-      dashBoard.ensureEditableLayerSelected();
-      // Check if the active layer is valid
-      if (!dashBoard.activeLayer) {
-      mainWindow.displayToast(qsTr("Select 'Points' layer and try again"));
-      dashBoard.open();
+      // Ensure an 'Points' layer is selected
+        if (dashBoard.activeLayer.name != 'Points') {
+        mainWindow.displayToast(qsTr("Select 'Points' layer and try again"));
+        dashBoard.open();
         return;
-      }
-       // Check if the active layer is a point layer
-      if (dashBoard.activeLayer.geometryType() !== Qgis.GeometryType.Point) {
-      mainWindow.displayToast(qsTr("Select 'Points' layer and try again"));
-      dashBoard.open();
-        return;
-      }
+        }
       
-
        // Create the geometry 
       var reprojectedGeometry = GeometryUtils.createGeometryFromWkt(`POINT(${reprojectedPoint.x} ${reprojectedPoint.y})`)
        
@@ -1353,20 +1344,12 @@ Button {
  Layout.preferredHeight: 60 
 
  onClicked: {
-      // Ensure an editable layer is selected
-      dashBoard.ensureEditableLayerSelected();
-      // Check if the active layer is valid
-      if (!dashBoard.activeLayer) {
-      mainWindow.displayToast(qsTr("Select 'Points' layer and try again"));
-      dashBoard.open();
+  // Ensure an 'Points' layer is selected
+        if (dashBoard.activeLayer.name != 'Points') {
+        mainWindow.displayToast(qsTr("Select 'Points' layer and try again"));
+        dashBoard.open();
         return;
-      }
-       // Check if the active layer is a point layer
-      if (dashBoard.activeLayer.geometryType() !== Qgis.GeometryType.Point) {
-      mainWindow.displayToast(qsTr("Select 'Points' layer and try again"));
-      dashBoard.open();
-        return;
-      }
+        }
 
  // Parse coordinates & transform
  var parts = wgs84Box.text.split(',');
