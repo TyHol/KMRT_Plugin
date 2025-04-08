@@ -35,10 +35,10 @@ property var igvis: true // visibility of Irish grid
 property var ukgvis: false // visibility of UK grid
 property var custom1vis: false // visibility of custom1
 property var custom2vis: false // visibility of custom2 
-property var wgs84vis: true // visibility of wgs84 // always visible
-property var dmvis: false // visibility of DM
+property var wgs84vis: false // visibility of wgs84 // always visible
+property var dmvis: true // visibility of DM
 property var dmsvis: false // visibility of DMS
-property var dmsBoxesvis: false // visibility of DMS boxes
+property var dmsBoxesvis: true // visibility of DMS boxes
 property var customisationvis: false // visibility of customisation
 property var crosshairvis: true // visibility of crosshair
 // for testing:
@@ -676,7 +676,7 @@ TextField {
 // wgs1984 
 RowLayout{
  id: wgsdegreesrow
- visible: true // always visible
+ visible: wgs84vis 
 TextField {
  id: wgs84Box //5
   Layout.fillWidth: true
@@ -1247,7 +1247,7 @@ onPressAndHold: {
  var ylon = parts[1] 
  
  updateCoordinates(ylon, xlat, 4326, custom1CRS.text, custom2CRS.text,5)} 
- coordinatesDialog.open()
+ bigDialog2.open()
  } 
  }
  }
@@ -1431,11 +1431,11 @@ Button {
  font.pixelSize: font_Size.text 
  Layout.preferredHeight: 60 
  onClicked: { 
-    coordinatesDialog.open() 
+    bigDialog.open() 
     }
 
  onPressAndHold: {
-     coordinatesDialog2.open() 
+     bigDialog2.open() 
      }
  }
  } 
@@ -1618,7 +1618,7 @@ GridLayout{  // grid 2
         id: showDM
         text: "D M.mm"
         font.pixelSize: 10
-        checked: false
+        checked: true
         onCheckedChanged: {
             dmrow.visible = checked            
         }
@@ -1667,7 +1667,7 @@ GridLayout{  // grid 2
         id: showDMSboxes
         text: "DMSBoxes"
         font.pixelSize: 10
-        checked: false
+        checked: true
         onCheckedChanged: {
             latlongboxesDMS.visible = checked   
         }
@@ -1678,124 +1678,194 @@ GridLayout{  // grid 2
   
 } // end of customisation 
 } // end of big column
-     Dialog {
-        id: coordinatesDialog
-        //title:  "Coordinates"
-        font.pixelSize: 35
-        width: 350
-        height: 400
-        modal: true
-        anchors.centerIn:  parent
-
-Column {
-    spacing: 20  // Space between the two boxes
-    width: parent.width
+Dialog {
+    id: bigDialog
+    font.pixelSize: 35
+    width: 350
+    height: 400
+    modal: true
     anchors.centerIn: parent
-   
-    // First Box: GPS
-    Rectangle {
-        id: gpsBox
-        visible: gpsBoxvis
-        width: parent.width //*0.5  // Make it responsive
-        implicitHeight: childrenRect.height + 20
-        color: "#D9CCE7"  // Lavender
-        radius: 10
-        border.color: "black"
-        border.width: 0.5
-        anchors.horizontalCenter: parent.horizontalCenter
-                
-        Column {
-            id: childrenRect
-            width: parent.width
-            spacing: 10
-            anchors.margins: 10
-            anchors.centerIn: parent
 
-            Label {
-                text: "GPS"
-                font.pixelSize: 20
-                font.bold: true
-                horizontalAlignment: Text.AlignHCenter
-                anchors.horizontalCenter: parent.horizontalCenter
+    Column {
+        spacing: 20
+        width: parent.width
+        anchors.centerIn: parent
+
+        // GPS Box
+        Rectangle {
+            id: gpsBox
+            visible: gpsBoxvis
+            width: parent.width
+            implicitHeight: childrenRect.height + 20
+            color: "#D9CCE7"
+            radius: 10
+            border.color: "black"
+            border.width: 0.5
+            anchors.horizontalCenter: parent.horizontalCenter
+
+            Column {
+                id: childrenRect
+                width: parent.width
+                spacing: 10
+                anchors.margins: 10
+                anchors.centerIn: parent
+
+                Label {
+                    text: "GPS"
+                    font.pixelSize: 20
+                    font.bold: true
+                    horizontalAlignment: Text.AlignHCenter
+                    anchors.horizontalCenter: parent.horizontalCenter
+                }
+
+                // IG (GPS)
+                MouseArea {
+                    width: parent.width
+                    height: gpsIG.implicitHeight
+                    onClicked: {
+                        let text = gpsIG.text;
+                        let textEdit = Qt.createQmlObject('import QtQuick; TextEdit { }', plugin);
+                        textEdit.text = text;
+                        textEdit.selectAll();
+                        textEdit.copy();
+                        textEdit.destroy();
+                        mainWindow.displayToast("Copied: " + text);
+                    }
+
+                    Label {
+                        id: gpsIG
+                        text: (positionSource.active && positionSource.positionInformation.latitudeValid && positionSource.positionInformation.longitudeValid)
+        ? ((showIG.checked
+            ? justIG(positionSource.projectedPosition, canvasEPSG)
+            : justUKG(positionSource.projectedPosition, canvasEPSG)))
+        : "No GPS"
+                        font.pixelSize: 35
+                        wrapMode: Text.Wrap
+                        horizontalAlignment: Text.AlignHCenter
+                        anchors.horizontalCenter: parent.horizontalCenter
+                    }
+                }
+
+                // LL (GPS)
+                MouseArea {
+                    width: parent.width
+                    height: gpsLL.implicitHeight
+                    onClicked: {
+                        let text = gpsLL.text;
+                        let textEdit = Qt.createQmlObject('import QtQuick; TextEdit { }', plugin);
+                        textEdit.text = text;
+                        textEdit.selectAll();
+                        textEdit.copy();
+                        textEdit.destroy();
+                        mainWindow.displayToast("Copied: " + text);
+                    }
+
+                    Label {
+                        id: gpsLL
+                        text: (positionSource.active && positionSource.positionInformation.latitudeValid && positionSource.positionInformation.longitudeValid)
+                            ? justLL(positionSource.projectedPosition, canvasEPSG)
+                            : ""
+                        font.pixelSize: 30
+                        wrapMode: Text.Wrap
+                        horizontalAlignment: Text.AlignHCenter
+                        anchors.horizontalCenter: parent.horizontalCenter
+                    }
+                }
             }
-            Label {
-                text: if (positionSource.active && positionSource.positionInformation.latitudeValid && positionSource.positionInformation.longitudeValid) {justIG(positionSource.projectedPosition,  canvasEPSG)} else 
- {"No GPS"}
-                font.pixelSize: 35
-                wrapMode: Text.Wrap
-                horizontalAlignment: Text.AlignHCenter
-                anchors.horizontalCenter: parent.horizontalCenter
+        }
+
+        // Screen Center Box
+        Rectangle {
+            id: screenBox
+            visible: screenBoxvis
+            width: parent.width
+            implicitHeight: childrenRect2.height + 20
+            color: "#f0f0f0"
+            radius: 10
+            border.color: "black"
+            border.width: 0.5
+            anchors.horizontalCenter: parent.horizontalCenter
+
+            Column {
+                id: childrenRect2
+                width: parent.width
+                spacing: 10
+                anchors.margins: 10
+                anchors.centerIn: parent
+
+                Label {
+                    text: "Screen Center"
+                    font.pixelSize: 20
+                    font.bold: true
+                    horizontalAlignment: Text.AlignHCenter
+                    anchors.horizontalCenter: parent.horizontalCenter
+                }
+
+                // IG (Screen Center)
+                MouseArea {
+                    width: parent.width
+                    height: screenIG.implicitHeight
+                    onClicked: {
+                        let text = screenIG.text;
+                        let textEdit = Qt.createQmlObject('import QtQuick; TextEdit { }', plugin);
+                        textEdit.text = text;
+                        textEdit.selectAll();
+                        textEdit.copy();
+                        textEdit.destroy();
+                        mainWindow.displayToast("Copied: " + text);
+                    }
+
+                    Label {
+                        id: screenIG
+                        text:  showIG.checked ? justIG(canvas.center, canvasEPSG) :justUKG(canvas.center, canvasEPSG)
+                        font.pixelSize: 35
+                        wrapMode: Text.Wrap
+                        horizontalAlignment: Text.AlignHCenter
+                        anchors.horizontalCenter: parent.horizontalCenter
+                    }
+                }
+
+                // LL (Screen Center)
+                MouseArea {
+                    width: parent.width
+                    height: screenLL.implicitHeight
+                    onClicked: {
+                        let text = screenLL.text;
+                        let textEdit = Qt.createQmlObject('import QtQuick; TextEdit { }', plugin);
+                        textEdit.text = text;
+                        textEdit.selectAll();
+                        textEdit.copy();
+                        textEdit.destroy();
+                        mainWindow.displayToast("Copied: " + text);
+                    }
+
+                    Label {
+                        id: screenLL
+                        text: justLL(canvas.center, canvasEPSG)
+                        font.pixelSize: 30
+                        wrapMode: Text.Wrap
+                        horizontalAlignment: Text.AlignHCenter
+                        anchors.horizontalCenter: parent.horizontalCenter
+                    }
+                }
             }
-            Label {
-                text: if (positionSource.active && positionSource.positionInformation.latitudeValid && positionSource.positionInformation.longitudeValid) {justLL(positionSource.projectedPosition,  canvasEPSG)} else {""}
-                font.pixelSize: 30
-                wrapMode: Text.Wrap
-                horizontalAlignment: Text.AlignHCenter
-                anchors.horizontalCenter: parent.horizontalCenter
-            }            
         }
     }
-
-    // Second Box: Screen Center
-    Rectangle {
-        id: screenBox
-        visible: screenBoxvis
-        width: parent.width //* 0.98
-        implicitHeight: childrenRect2.height + 20
-        color: "#f0f0f0"
-        radius: 10
-        border.color: "black"
-        border.width: 0.5
-        anchors.horizontalCenter: parent.horizontalCenter
-
-        Column {
-            id: childrenRect2
-            width: parent.width
-            spacing: 10
-            anchors.margins: 10
-            anchors.centerIn: parent
-
-            Label {
-                text: "Screen Center"
-                font.pixelSize: 20
-                font.bold: true
-                horizontalAlignment: Text.AlignHCenter
-                anchors.horizontalCenter: parent.horizontalCenter
-            }
-            Label {
-                text: justIG(canvas.center, canvasEPSG)
-                font.pixelSize: 35
-                wrapMode: Text.Wrap
-                horizontalAlignment: Text.AlignHCenter
-                anchors.horizontalCenter: parent.horizontalCenter
-            }
-            Label {
-                text: justLL(canvas.center, canvasEPSG)
-                font.pixelSize: 30
-                wrapMode: Text.Wrap
-                horizontalAlignment: Text.AlignHCenter
-                anchors.horizontalCenter: parent.horizontalCenter
-            }            
-        }
-    }
-
-
 }
 
-    }
-     Dialog {
-        id: coordinatesDialog2
-        font.pixelSize: 35
-        width: 400
-        height: 350
-        modal: true
-        anchors.centerIn:  parent
+Dialog {
+    id: bigDialog2
+    font.pixelSize: 35
+    width: 400
+    height: 350
+    modal: true
+    anchors.centerIn: parent
 
-    // Third Box: box contents:
+    // Third Box: Box contents
     Rectangle {
-        id : boxBox
+        id: boxBox
         visible: boxBoxvis
-        width: parent.width //* 0.98
+        width: parent.width
         implicitHeight: childrenRect3.height + 20
         color: "#f0fef0"
         radius: 10
@@ -1817,37 +1887,106 @@ Column {
                 horizontalAlignment: Text.AlignHCenter
                 anchors.horizontalCenter: parent.horizontalCenter
             }
-            Label {
-                text: igInputBox.text
-                font.pixelSize: 35
-                wrapMode: Text.Wrap
-                horizontalAlignment: Text.AlignHCenter
-                anchors.horizontalCenter: parent.horizontalCenter
+
+            // igInputBox text
+            MouseArea {
+                width: parent.width
+                height: igCopy.implicitHeight
+                onClicked: {
+                    let text = igCopy.text;
+                    let textEdit = Qt.createQmlObject('import QtQuick; TextEdit { }', plugin);
+                    textEdit.text = text;
+                    textEdit.selectAll();
+                    textEdit.copy();
+                    textEdit.destroy();
+                    mainWindow.displayToast("Copied: " + text);
+                }
+
+                Label {
+                    id: igCopy
+                    text: igInputBox.text
+                    font.pixelSize: 35
+                    wrapMode: Text.Wrap
+                    horizontalAlignment: Text.AlignHCenter
+                    anchors.horizontalCenter: parent.horizontalCenter
+                }
             }
-            Label {
-                text: wgs84Box.text
-                font.pixelSize: 30
-                wrapMode: Text.Wrap
-                horizontalAlignment: Text.AlignHCenter
-                anchors.horizontalCenter: parent.horizontalCenter
-            } 
-            Label {
-                text: wgs84DMBox.text
-                font.pixelSize: 30
-                wrapMode: Text.Wrap
-                horizontalAlignment: Text.AlignHCenter
-                anchors.horizontalCenter: parent.horizontalCenter
-            } 
-            Label {
-                text: wgs84DMSBox.text
-                font.pixelSize: 30
-                wrapMode: Text.Wrap
-                horizontalAlignment: Text.AlignHCenter
-                anchors.horizontalCenter: parent.horizontalCenter
-            }                     
+
+            // wgs84Box text
+            MouseArea {
+                width: parent.width
+                height: wgs84Copy.implicitHeight
+                onClicked: {
+                    let text = wgs84Copy.text;
+                    let textEdit = Qt.createQmlObject('import QtQuick; TextEdit { }', plugin);
+                    textEdit.text = text;
+                    textEdit.selectAll();
+                    textEdit.copy();
+                    textEdit.destroy();
+                    mainWindow.displayToast("Copied: " + text);
+                }
+
+                Label {
+                    id: wgs84Copy
+                    text: wgs84Box.text
+                    font.pixelSize: 30
+                    wrapMode: Text.Wrap
+                    horizontalAlignment: Text.AlignHCenter
+                    anchors.horizontalCenter: parent.horizontalCenter
+                }
+            }
+
+            // wgs84DMBox text
+            MouseArea {
+                width: parent.width
+                height: wgs84DMCopy.implicitHeight
+                onClicked: {
+                    let text = wgs84DMCopy.text;
+                    let textEdit = Qt.createQmlObject('import QtQuick; TextEdit { }', plugin);
+                    textEdit.text = text;
+                    textEdit.selectAll();
+                    textEdit.copy();
+                    textEdit.destroy();
+                    mainWindow.displayToast("Copied: " + text);
+                }
+
+                Label {
+                    id: wgs84DMCopy
+                    text: wgs84DMBox.text
+                    font.pixelSize: 30
+                    wrapMode: Text.Wrap
+                    horizontalAlignment: Text.AlignHCenter
+                    anchors.horizontalCenter: parent.horizontalCenter
+                }
+            }
+
+            // wgs84DMSBox text
+            MouseArea {
+                width: parent.width
+                height: wgs84DMSCopy.implicitHeight
+                onClicked: {
+                    let text = wgs84DMSCopy.text;
+                    let textEdit = Qt.createQmlObject('import QtQuick; TextEdit { }', plugin);
+                    textEdit.text = text;
+                    textEdit.selectAll();
+                    textEdit.copy();
+                    textEdit.destroy();
+                    mainWindow.displayToast("Copied: " + text);
+                }
+
+                Label {
+                    id: wgs84DMSCopy
+                    text: wgs84DMSBox.text
+                    font.pixelSize: 30
+                    wrapMode: Text.Wrap
+                    horizontalAlignment: Text.AlignHCenter
+                    anchors.horizontalCenter: parent.horizontalCenter
+                }
+            }
         }
     }
-    }
+}
+
 }
  
 
@@ -2156,6 +2295,13 @@ function justIG(source,crs){
 var point = GeometryUtils.reprojectPoint(GeometryUtils.point(source.x, source.y),  CoordinateReferenceSystemUtils.fromDescription("EPSG:"+crs) , CoordinateReferenceSystemUtils.fromDescription("EPSG:29903"))
  return getIGFromXY(point.x, point.y)
  }
+
+
+function justUKG(source,crs){ 
+var point = GeometryUtils.reprojectPoint(GeometryUtils.point(source.x, source.y),  CoordinateReferenceSystemUtils.fromDescription("EPSG:"+crs) , CoordinateReferenceSystemUtils.fromDescription("EPSG:27700"))
+ return getUKFromXY(point.x, point.y)
+ }
+
 
 function justLL(source,crs){ 
 var point = GeometryUtils.reprojectPoint(GeometryUtils.point(source.x, source.y),  CoordinateReferenceSystemUtils.fromDescription("EPSG:"+crs) , CoordinateReferenceSystemUtils.fromDescription("EPSG:4326"))
