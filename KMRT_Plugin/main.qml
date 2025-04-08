@@ -114,7 +114,7 @@ function triggerResultFromAction(result, actionId) {
 
     } else if (actionId === 2) {
       // Ensure an 'Points' layer is selected
-        if (dashBoard.activeLayer.name != 'Points') {
+        if (!dashBoard.activeLayer || dashBoard.activeLayer.name != 'Points') {
         mainWindow.displayToast(qsTr("Select 'Points' layer and try again"));
         dashBoard.open();
         return;
@@ -1345,7 +1345,7 @@ Button {
 
  onClicked: {
   // Ensure an 'Points' layer is selected
-        if (dashBoard.activeLayer.name != 'Points') {
+        if (!dashBoard.activeLayer || dashBoard.activeLayer.name != 'Points') {
         mainWindow.displayToast(qsTr("Select 'Points' layer and try again"));
         dashBoard.open();
         return;
