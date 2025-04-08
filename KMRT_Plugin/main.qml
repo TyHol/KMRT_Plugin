@@ -65,7 +65,7 @@ QFieldLocatorFilter {
     displayName: "IG & UK Grid finder"
     prefix: "grid"
     locatorBridge: iface.findItemByObjectName('locatorBridge')
-    source: Qt.resolvedUrl('grids.qml')
+    source: Qt.resolvedUrl('plugin_stuff/grids.qml')
     
 
 function triggerResult(result) {
@@ -176,7 +176,7 @@ function triggerResultFromAction(result, actionId) {
 QfToolButton {
  id: digitizeButton
  bgcolor: Theme.darkGray
- iconSource: 'icon2.svg'
+ iconSource: 'plugin_stuff/icon2.svg'
  round: true 
  onClicked: { mainDialog.open() }}
  
@@ -1694,7 +1694,6 @@ Dialog {
         // GPS Box
         Rectangle {
             id: gpsBox
-            visible: gpsBoxvis
             width: parent.width
             implicitHeight: childrenRect.height + 20
             color: "#D9CCE7"
@@ -1777,7 +1776,6 @@ Dialog {
         // Screen Center Box
         Rectangle {
             id: screenBox
-            visible: screenBoxvis
             width: parent.width
             implicitHeight: childrenRect2.height + 20
             color: "#f0f0f0"
@@ -1864,7 +1862,6 @@ Dialog {
     // Third Box: Box contents
     Rectangle {
         id: boxBox
-        visible: boxBoxvis
         width: parent.width
         implicitHeight: childrenRect3.height + 20
         color: "#f0fef0"
