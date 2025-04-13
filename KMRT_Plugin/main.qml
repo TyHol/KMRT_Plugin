@@ -1573,13 +1573,14 @@ GridLayout{  // grid 2
         }
     }
 
-        CheckBox {
-        id: showCustom1
-        text: "Custom 1"
+
+                        CheckBox {
+        id: showDegrees
+        text: "Degrees"
         font.pixelSize: 10
         checked: false
         onCheckedChanged: {
-            custom1row.visible = checked
+            wgsdegreesrow.visible = checked   
         }
     }
      CheckBox {
@@ -1605,16 +1606,16 @@ GridLayout{  // grid 2
             ukgridrow.visible = checked
         }
     }
-            CheckBox {
-        id: showCustom2
-        text: "Custom 2"
-        font.pixelSize: 10
-        checked: false
-        onCheckedChanged: {
-            custom2row.visible = checked         
-        }
-    }
-            CheckBox {
+       //     CheckBox {
+       // id: showCustom2
+       // text: "Custom 2"
+       // font.pixelSize: 10
+       // checked: false
+       // onCheckedChanged: {
+      //      custom2row.visible = checked         
+       // }
+    //}
+                CheckBox {
         id: showDM
         text: "D M.mm"
         font.pixelSize: 10
@@ -1623,6 +1624,16 @@ GridLayout{  // grid 2
             dmrow.visible = checked            
         }
     }
+        CheckBox {
+        id: showCustom1
+        text: "Custom 1"
+        font.pixelSize: 10
+        checked: false
+        onCheckedChanged: {
+            custom1row.visible = checked
+        }
+    }
+
 
 //row 3
  
@@ -1643,7 +1654,8 @@ GridLayout{  // grid 2
     showIG.checked = igvis
     showUK.checked = ukgvis
     showCustom1.checked = custom1vis 
-    showCustom2.checked = custom2vis
+    //showCustom2.checked = custom2vis
+    showDegrees.checked = wgs84vis    
     showDM.checked = dmvis
     showDMS.checked = dmsvis
     showDMSboxes.checked = dmsBoxesvis
