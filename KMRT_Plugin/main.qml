@@ -20,6 +20,7 @@ Item {
  //property var crsGeo : canvasCrs.isGeographic // is the canvas Geogrpahic (true (deg)) or projected (false (m))
  property var canvasEPSG : parseInt(canvas.project.crs.authid.split(":")[1]); // Canvas CRS
  property var mapCanvas: iface.mapCanvas()
+ property var geometryHighlighter: iface.findItemByObjectName('geometryHighlighter')
 
 
 
@@ -84,8 +85,9 @@ function triggerResult(result) {
    mapCanvas.mapSettings.setCenter(reprojectedGeometry, true);
 
     // Highlight the geometry on the map
-    locatorBridge.locatorHighlightGeometry.qgsGeometry = geometry;
-    locatorBridge.locatorHighlightGeometry.crs = crs;
+    var pointGeometry = GeometryUtils.createGeometryFromWkt(`POINT(${mapCanvas.mapSettings.center.x} ${mapCanvas.mapSettings.center.y})`);
+    geometryHighlighter.geometryWrapper.qgsGeometry = pointGeometry;
+
   } else {
     mainWindow.displayToast("Invalid geometry in result");
   }
@@ -1284,15 +1286,18 @@ RowLayout{
  
  var customcrsOUT = CoordinateReferenceSystemUtils.fromDescription("EPSG:" + canvasEPSG); 
  var transformedPoint = GeometryUtils.reprojectPoint(GeometryUtils.point(xIN, yIN), customcrsIN, customcrsOUT); 
- 
- 
+  
  iface.mapCanvas().mapSettings.center.x = transformedPoint.x;
  iface.mapCanvas().mapSettings.center.y = transformedPoint.y;
- 
+mainDialog.close() 
 
- 
+// Highlight:
+var pointGeometry = GeometryUtils.createGeometryFromWkt(`POINT(${transformedPoint.x} ${transformedPoint.y})`);
+geometryHighlighter.geometryWrapper.qgsGeometry = pointGeometry;
+
+
  mainWindow.displayToast( transformedPoint.x + ", " + transformedPoint.y)
- mainDialog.close() 
+ 
  }
  onPressAndHold: { // zoom to point
  var parts = wgs84Box.text.split(',')
@@ -1333,6 +1338,10 @@ var geometry = GeometryUtils.createGeometryFromWkt(polygonWkt);
  )
  mapCanvas.mapSettings.setExtent(extent, true);
  mainDialog.close()
+  // Set geometry to highlighter
+var pointGeometry = GeometryUtils.createGeometryFromWkt(`POINT(${transformedPoint.x} ${transformedPoint.y})`);
+geometryHighlighter.geometryWrapper.qgsGeometry = pointGeometry;
+
  } 
  }
  
@@ -1374,6 +1383,11 @@ Button {
  mainWindow.displayToast(`${transformedPoint.x}, ${transformedPoint.y}`);
 
  mainDialog.close();
+// Geometry highlighter
+ var pointGeometry = GeometryUtils.createGeometryFromWkt(`POINT(${transformedPoint.x} ${transformedPoint.y})`);
+ geometryHighlighter.geometryWrapper.qgsGeometry = pointGeometry;
+ 
+ }
  }
 }
 
