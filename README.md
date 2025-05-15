@@ -1,6 +1,6 @@
 # Convert Coordinates Dialogue
 
-This is a plugin for the [Qfield](https://qfield.org/) app to convert between coordinates: Irish Grid, UK Grid, Lat long, Custom 1 (default=screen CRS) and Custom 2 (default = WGS84).
+This is a plugin for the [Qfield](https://qfield.org/) app to convert between coordinates: Irish Grid, UK Grid, Lat long, Custom  (default=screen CRS) coordinates).
 
 - Will show and convert screen centre coordinates, current GPS coordinates or manually inputted coordinates.
 - Will create a point (in the active point layer) at location.
